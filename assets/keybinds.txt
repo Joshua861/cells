@@ -1,0 +1,16 @@
+Keybinds:
+   Space: Play/pause.
+   K: Show/hide keybinds.
+   G: Toggle grid.
+   C: Clear grid.
+   F: Toggle info.
+   B: Toggle symmetry.
+   N: Advance one generation.
+   Esc: Close window.
+   Ctrl+S: Save game to file.
+   Ctrl+click+drag: Select cells.
+   Ctrl+C: Copy selection.
+   Ctrl+X: Cut selection.
+   Ctrl+V: Paste selection.
+   Q/E: Rotate selection CCW/CW.
+   W/A/S/D: Translate selection.
