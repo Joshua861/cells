@@ -101,7 +101,7 @@ impl Default for Config {
             void_color: Color::new(0.08, 0.08, 0.08),
             text_color: Color::new(0.95, 0.95, 0.95),
             smoothing_factor: 3.0,
-            rule: Rule::from_str("23/3"),
+            rule: "23/3".into(),
             autosize_board: false,
             board_size: VecU2::new(100, 100),
             selection_color: Color::hex(0x4ba4f2),
