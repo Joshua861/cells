@@ -1,3 +1,5 @@
+//! Basically an F3 menu.
+
 use crate::prelude::*;
 use crate::timing::get_timers;
 

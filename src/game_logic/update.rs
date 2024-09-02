@@ -1,10 +1,17 @@
+//! Houses the `update` function, which runs every frame.
+//!
+//! Just does anything that needs to be done every frame.
+
 use crate::prelude::*;
 
+/// Runs every frame.
 pub fn update(app: &App, model: &mut Model, _update: Update) {
     let cache = &mut model.cache;
 
+    // Run this every frame to calculate the FPS.
     model.fps.tick();
 
+    // Lerp the camera offset and zoom.
     {
         let smoothing_factor = CONFIG.smoothing_factor / 10.;
         let mut cache_needs_updating = false;
@@ -28,9 +35,12 @@ pub fn update(app: &App, model: &mut Model, _update: Update) {
             + model.cache.target_tile_size * smoothing_factor;
     }
 
+    // Only run the logic when not paused.
     if !model.paused {
         time!("advance", { model.board.advance() });
     }
+
+    // Drawing && selections.
     if let Some(button) = model.pressed {
         if model.selection.is_none() {
             let mut set = |to: bool| {

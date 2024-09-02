@@ -1,5 +1,11 @@
+//! The Cache holds a lot of information about the state of the game.
+//!
+//! Mostly cached variables, stored here so we don't have to recompute them all the time. Though it
+//! also has information about the camera_offset and zoom.
+
 use crate::config::CONFIG;
 
+/// Struct which stores the cached data.
 #[derive(Clone)]
 pub struct Cache {
     pub half_board_width: f32,
@@ -15,6 +21,7 @@ pub struct Cache {
 }
 
 impl Cache {
+    /// Creates a new instance of the board, computing the variables based off some values.
     pub fn new(board_size: (usize, usize), tile_size: f32) -> Self {
         Self {
             half_board_width: board_size.0 as f32 / 2.,
@@ -29,6 +36,7 @@ impl Cache {
             target_camera_offset: (0., 0.),
         }
     }
+    /// Now only used when CONFIG.autosize_board is false.
     pub fn update(&mut self, board_size: (usize, usize), tile_size: f32) {
         self.half_board_width = board_size.0 as f32 / 2.;
         self.half_board_height = board_size.1 as f32 / 2.;

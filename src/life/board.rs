@@ -1,79 +1,47 @@
+//! Where the board is stored and where the life logic is.
+
 use crate::prelude::*;
 use rayon::prelude::*;
 use std::collections::HashSet;
 
-use crate::{config::CONFIG, game_logic::i_to_xy};
+use crate::config::CONFIG;
 
+/// Struct for the board.
 #[derive(Clone, Debug)]
 pub struct Board {
     pub tiles: Grid<bool>,
 }
 
+/// Struct that stores the info about a tile.
+///
+/// TODO: Integrate this with the board.
+pub struct Tile {
+    pub material: TinyStr,
+}
+
 impl Board {
+    /// Creates a new empty board.
     pub fn new(width: usize, height: usize) -> Self {
         let tiles = Grid::from_vec(vec![false; width * height], width);
 
         Self { tiles }
     }
+    /// Advances the board by one iteration.
     pub fn advance(&mut self) {
-        if !CONFIG.parallel_board_processing {
-            let width = self.width();
-            let rule = &CONFIG.rule;
+        let width = self.width();
+        let height = self.height();
+        let rule = &CONFIG.rule;
 
-            let mut next_tiles = self.clone();
+        let mut next_tiles = vec![false; width * height];
 
-            let mut active_tiles = self
-                .tiles
-                .iter()
-                .enumerate()
-                .filter(|(_, v)| **v)
-                .map(|(i, _)| i_to_xy(width, i))
-                .collect::<HashSet<_>>();
+        next_tiles.par_iter_mut().enumerate().for_each(|(i, tile)| {
+            let (x, y) = self.i_to_xy(i);
+            let count = self.count_neighbors(x, y);
+            let cell = self.get(x, y).unwrap_or(false);
+            *tile = (!cell && rule.born(count)) || (cell && rule.survive(count));
+        });
 
-            active_tiles.clone().iter().for_each(|&(x, y)| {
-                [
-                    [1, 1],
-                    [1, 0],
-                    [0, 1],
-                    [-1, 0],
-                    [0, -1],
-                    [-1, -1],
-                    [-1, 1],
-                    [1, -1],
-                ]
-                .iter()
-                .for_each(|[dx, dy]| {
-                    active_tiles.insert(((dx + x as isize) as usize, (dy + y as isize) as usize));
-                })
-            });
-
-            for (x, y) in active_tiles.into_iter() {
-                let count = self.count_neighbors(x, y);
-                let cell = self.get(x, y).unwrap_or(false);
-                next_tiles.set(
-                    x,
-                    y,
-                    (!cell && rule.born(count)) || (cell && rule.survive(count)),
-                );
-            }
-
-            *self = next_tiles;
-        } else {
-            let width = self.width();
-            let height = self.height();
-            let rule = &CONFIG.rule;
-
-            let mut next_tiles = vec![false; width * height];
-
-            next_tiles.par_iter_mut().enumerate().for_each(|(i, tile)| {
-                let (x, y) = self.i_to_xy(i);
-                let count = self.count_neighbors(x, y);
-                let cell = self.get(x, y).unwrap_or(false);
-                *tile = (!cell && rule.born(count)) || (cell && rule.survive(count));
-            });
-
-            self.tiles = Grid::from_vec(next_tiles, width);
-        }
+        self.tiles = Grid::from_vec(next_tiles, width);
     }
     pub fn width(&self) -> usize {
         self.tiles.cols()
@@ -91,6 +59,9 @@ impl Board {
 
         self.tiles.get(y, x).cloned().unwrap_or(false)
     }
+    /// Resizes the board.
+    ///
+    /// Only uses when CONFIG.autosize_board is true.
     pub fn set_wh(&mut self, w: usize, h: usize) {
         let mut new_game = Board::new(w, h);
         let x_offset = (w as isize - self.width() as isize) / 2;
@@ -120,6 +91,7 @@ impl Board {
         *self.tiles.get_mut(y, x)? = value;
         Some(())
     }
+    /// Number of alive neighbors around a tile.
     fn count_neighbors(&self, x: usize, y: usize) -> u8 {
         let mut count = 0;
         for dy in -1..=1 {
@@ -136,6 +108,7 @@ impl Board {
         }
         count
     }
+    /// Sets an area on the board, to a new area.
     pub fn set_area(&mut self, pos: VecU2, tiles: &Grid<bool>) {
         let (dx, dy) = pos.as_tuple();
         let (w, h) = (tiles.cols(), tiles.rows());
@@ -159,6 +132,7 @@ impl Board {
     pub fn clear(&mut self) {
         *self = Self::new(self.width(), self.height());
     }
+    /// Crops the board to remove trailing & leading empty rows and columns.
     pub fn crop(&mut self) {
         for _ in 0..2 {
             while self.width() > 0 {
@@ -182,6 +156,7 @@ impl Board {
             self.tiles.rotate_half();
         }
     }
+    /// Draws a line of from one coordinate to another.
     pub fn draw_line(
         &mut self,
         start_x: usize,

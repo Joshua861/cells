@@ -1,3 +1,5 @@
+//! Logic for showing the messages at the bottom right of the screen.
+
 use crate::prelude::*;
 use lazy_static::lazy_static;
 use std::{fmt::Display, sync::RwLock};

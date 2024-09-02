@@ -14,3 +14,4 @@ Keybinds:
    Ctrl+V: Paste selection.
    Q/E: Rotate selection CCW/CW.
    W/A/S/D: Translate selection.
+   Del: Erase selection.

@@ -1,9 +1,12 @@
+//! This is where all the rendering happens.
+
 use crate::prelude::*;
 use crate::time;
 use crate::timing::clear_timers;
 use crate::ui::draw_notifications;
-use crate::ui::{draw_info, Window};
+use crate::ui::{draw_info, UiWindow};
 
+/// Main render function.
 pub fn view(app: &App, model: &Model, frame: Frame) {
     let cache = &model.cache;
 
@@ -36,7 +39,7 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
 
         draw_info(&draw, model);
 
-        Window::new()
+        UiWindow::new()
             .text(&model.keybinds)
             .open(model.show_keybinds)
             .build()
@@ -48,6 +51,8 @@ pub fn view(app: &App, model: &Model, frame: Frame) {
     });
 }
 
+/// The background of the whole window is the CONFIG.void_color. We draw a rectangle of color
+/// CONFIG.background_color over the part of you can draw on.
 fn draw_background(draw: &Draw, cache: &Cache) {
     draw.rect()
         .x_y(
@@ -61,6 +66,8 @@ fn draw_background(draw: &Draw, cache: &Cache) {
         .color(CONFIG.background_color.to_srgb());
 }
 
+/// Draws a rectangle for each cell in the board.
+/// The slowest part of the program at the moment.
 fn draw_cells(draw: &Draw, board: &Board, cache: &Cache) {
     for (i, tile) in board.tiles.iter().enumerate() {
         if *tile {
@@ -74,6 +81,9 @@ fn draw_cells(draw: &Draw, board: &Board, cache: &Cache) {
     }
 }
 
+/// Draws a highlight over the cell the mouse is currently over.
+///
+/// TODO: Mirror the highlight when symmetry is enabled.
 fn draw_highlight(draw: &Draw, model: &Model) {
     let cache = &model.cache;
     let board = &model.board;
@@ -95,6 +105,9 @@ fn draw_highlight(draw: &Draw, model: &Model) {
     }
 }
 
+/// Draws the grid lines when grid is enabled.
+///
+/// Not _super_ slow, but not great either.
 fn draw_grid_lines(draw: &Draw, cache: &Cache) {
     let mut weight = CONFIG.grid_thickness;
     let ts = cache.tile_size;

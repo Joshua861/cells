@@ -1,3 +1,5 @@
+//! Logic for running timers for how long things take.
+
 use crate::prelude::*;
 use lazy_static::lazy_static;
 use std::{fmt::Display, sync::RwLock};

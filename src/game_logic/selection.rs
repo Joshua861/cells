@@ -1,12 +1,16 @@
+//! Handles everything to do with the selection.
+
 use crate::prelude::*;
 use nalgebra::{Matrix2, Vector2};
 
+/// Struct that stores the current selection.
 #[derive(Clone)]
 pub struct Selection {
     pub start: VecU2,
     pub end: VecU2,
 }
 
+/// What type of rotation to do on the selection.
 #[allow(clippy::upper_case_acronyms)]
 #[derive(PartialEq, Eq)]
 pub enum Rotation {
@@ -33,6 +37,7 @@ impl Selection {
     pub fn wh(&self) -> (usize, usize) {
         (self.width(), self.height())
     }
+    /// Returns a grid of the selected tiles.
     pub fn get_inner_tiles(&self, model: &Model) -> Grid<bool> {
         let (w, h) = self.wh();
         let (w, h) = (w + 1, h + 1);
@@ -59,6 +64,7 @@ impl Selection {
     pub fn copy(&self, model: &mut Model) {
         model.clipboard = Some(self.get_inner_tiles(model));
     }
+    /// Pastes the clipboard into the board.
     pub fn paste(model: &mut Model) {
         if let Some(clipboard) = &model.clipboard {
             let (x, y) = pixel_to_board(model.mouse_pos.into(), &model.cache);
@@ -70,6 +76,7 @@ impl Selection {
             });
         }
     }
+    /// Clears the selection.
     pub fn clear(&self, model: &mut Model) {
         let (w, h) = self.wh();
         let (w, h) = (w + 1, h + 1);
@@ -84,6 +91,9 @@ impl Selection {
             }
         }
     }
+    /// Rotates the selection by 90 degrees either way.
+    ///
+    /// Uses some super sick LINEAR ALGEBRA!!!
     pub fn rotate(&self, model: &mut Model, rotation: Rotation) {
         let (w, h) = self.wh();
         let min_x = self.start.x.min(self.end.x);
@@ -143,6 +153,7 @@ impl Selection {
 
         model.selection = Some(new_selection);
     }
+    /// Moves the selection around the board.
     pub fn translate(&self, model: &mut Model, dx: isize, dy: isize) {
         let (w, h) = self.wh();
         let min_x = self.start.x.min(self.end.x);
@@ -183,6 +194,7 @@ impl Selection {
     }
 }
 
+/// Draws the outline around the selection.
 pub fn outline(draw: &Draw, cache: &Cache, start: VecU2, end: VecU2) {
     let (sx, sy) = board_xy_to_pixel(start.as_tuple(), cache);
     let (ex, ey) = board_xy_to_pixel(end.as_tuple(), cache);

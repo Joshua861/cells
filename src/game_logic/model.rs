@@ -1,10 +1,14 @@
-use super::*;
+//! The entry point of the program.
+//!
+//! Adds all the events and initializes the game state.
+
 use crate::{prelude::*, ui::notify_info};
 use clap::Parser;
 use fps_ticker::Fps;
 use grid::Grid;
 use nannou::text::Font;
 
+/// Struct which stores all the game state.
 #[derive(Clone)]
 pub struct Model {
     pub board: Board,
@@ -27,21 +31,29 @@ pub struct Model {
 }
 
 impl Model {
+    /// Estimates the time since the last frame.
     pub fn delta_time(&self) -> f32 {
         1. / self.fps.avg() as f32
     }
 }
 
+/// Struct which holds the arguments that can be passed to the program.
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
+    /// Used to load a savestate with a given name when launching the program.
     #[arg(short, long)]
     load: Option<String>,
 
+    /// Print out a savestate with a given name instead of launching the program, used for
+    /// debugging.
     #[arg(short, long)]
     print: Option<String>,
 }
 
+/// Entry point function.
+///
+/// Sets everything up.
 pub fn model(app: &App) -> Model {
     app.new_window()
         .mouse_pressed(mouse_pressed)
@@ -102,6 +114,9 @@ pub fn model(app: &App) -> Model {
         font: load_font(),
         rulestring: CONFIG.rule.serialize(),
         selection: None,
+        // This include_str! is a macro meaning that it runs at compile time, so once you've
+        // compiled the program, this macro is replaced with whatever text is inside keybinds.txt
+        // when you compiled, so it doesn't need the file to be run.
         keybinds: include_str!("../../assets/keybinds.txt").to_string(),
         show_keybinds: false,
         clipboard: None,

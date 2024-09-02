@@ -1,11 +1,14 @@
-use serde::{Deserialize, Deserializer, Serialize, Serializer};
+//! Utility functions and structs.
 
+use crate::prelude::notify_error;
 #[cfg(not(debug_assertions))]
 use dirs::data_dir;
 use lazy_static::lazy_static;
 use nannou::text::Font;
+use serde::{Deserialize, Deserializer, Serialize, Serializer};
+pub use tinystr::TinyStr;
 
-use crate::prelude::notify_error;
+pub mod tinystr;
 
 #[cfg(not(debug_assertions))]
 lazy_static! {
@@ -23,7 +26,7 @@ lazy_static! {
 }
 
 pub fn load_font() -> Font {
-    let asset = include_bytes!("../assets/fonts/jetbrains mono.ttf");
+    let asset = include_bytes!("../../assets/fonts/jetbrains mono.ttf");
     Font::from_bytes(asset).unwrap()
 }
 

@@ -1,5 +1,14 @@
+//! Handles keyboard input and keybinds.
+//!
+//! Triggers the right events when a key is pressed.
+//!
+//! The text for the keybinds window is stored in /assets/keybinds.txt.
+
 use crate::prelude::*;
 
+/// The function that is called when a key is pressed.
+///
+/// See game_logic::model::model, where it is used.
 pub fn key_pressed(app: &App, model: &mut Model, key: Key) {
     fn clear(model: &mut Model) {
         model.selection = None;

@@ -1,9 +1,13 @@
+//! Logic for rendering a window to the center of the screen.
+//!
+//! Used for the keybinds menu.
+
 use crate::config::Color;
 use crate::prelude::*;
 use bon::builder;
 
 #[builder(builder_type = WindowBuilder, start_fn = new, on(String, into))]
-pub struct Window {
+pub struct UiWindow {
     width: Option<f32>,
     padding: Option<f32>,
     lines: Option<usize>,
@@ -13,9 +17,9 @@ pub struct Window {
     line_height: Option<f32>,
 }
 
-impl Window {
+impl UiWindow {
     pub fn render(&self, draw: &Draw, cache: &Cache, model: &Model) {
-        let Window {
+        let UiWindow {
             width,
             padding,
             bg_color,

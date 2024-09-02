@@ -1,19 +1,13 @@
-pub use cache::*;
-pub use keybinds::*;
-pub use model::*;
-pub use mouse::*;
-pub use other_events::*;
-pub use selection::*;
-pub use update::*;
-pub use utils::*;
-pub use view::*;
+//! Handles rendering and controlling the game state.
+//!
+//! If you're looking around, start in model.rs.
 
-mod cache;
-mod keybinds;
-mod model;
-mod mouse;
-mod other_events;
-mod selection;
-mod update;
-mod utils;
-mod view;
+pub mod cache;
+pub mod keybinds;
+pub mod model;
+pub mod mouse;
+pub mod other_events;
+pub mod selection;
+pub mod update;
+pub mod utils;
+pub mod view;

@@ -1,16 +1,19 @@
-use self::load::load;
-use crate::{game::Rule, utils::VecU2};
+//! Handles the CONFIG global variable, loading from a TOML file, and providing default values.
+
+use crate::prelude::*;
 pub use color::*;
 use lazy_static::lazy_static;
 use serde::{Deserialize, Serialize};
+use std::{env, fs};
 
 pub mod color;
-mod load;
 
 lazy_static! {
+    /// Lazy_static const which holds an instance of the Config struct.
     pub static ref CONFIG: Config = Config::load();
 }
 
+/// Struct that holds all the configuration.
 #[derive(Deserialize, Serialize)]
 pub struct Config {
     pub window_title: String,
@@ -30,7 +33,6 @@ pub struct Config {
     pub rule: Rule,
     pub autosize_board: bool,
     pub board_size: VecU2,
-    pub parallel_board_processing: bool,
     pub selection_color: Color,
     pub selection_thickness: f32,
     pub font_size: u32,
@@ -40,10 +42,50 @@ pub struct Config {
 }
 
 impl Config {
-    pub fn load() -> Self {
-        load()
+    /// Load the configuration from config.toml.
+    pub fn load() -> Config {
+        let config_path = config_path();
+
+        let text = fs::read_to_string(&config_path);
+
+        if let Ok(text) = text {
+            return toml::from_str(text.as_str()).unwrap_or(Config::default());
+        } else {
+            notify_info("Failed to read config file; using default values.");
+
+            #[allow(deprecated)]
+            let path = config_path
+                .split('/')
+                .filter(|s| !s.contains(".toml"))
+                .collect::<Vec<&str>>()
+                .join("/")
+                .replace('~', env::home_dir().unwrap().to_str().unwrap());
+
+            let _ = fs::create_dir_all(path);
+
+            let text = Config::default().to_toml();
+
+            fs::write(config_path, text).expect("Failed to write default values to config file");
+
+            Config::default()
+        }
     }
-    pub fn default() -> Self {
+
+    /// Utility function to convert the Config to a TOML string.
+    pub fn to_toml(&self) -> String {
+        toml::to_string(&self).unwrap()
+    }
+}
+
+fn config_path() -> String {
+    let path = BASE_DIR.to_string() + "/config.toml";
+    dbg!(&path);
+
+    path
+}
+
+impl Default for Config {
+    fn default() -> Self {
         Self {
             window_title: String::from("Game of Life"),
             tile_size: 10.0,
@@ -61,8 +103,7 @@ impl Config {
             smoothing_factor: 3.0,
             rule: Rule::from_str("23/3"),
             autosize_board: false,
-            board_size: VecU2::new(700, 700),
-            parallel_board_processing: true,
+            board_size: VecU2::new(100, 100),
             selection_color: Color::hex(0x4ba4f2),
             selection_thickness: 4.0,
             font_size: 24,
@@ -70,8 +111,5 @@ impl Config {
             info_color: Color::hex(0x51aee9),
             error_color: Color::hex(0xcc6b70),
         }
-    }
-    pub fn to_toml(&self) -> String {
-        toml::to_string(&self).unwrap()
     }
 }

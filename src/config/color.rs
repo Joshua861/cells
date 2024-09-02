@@ -1,9 +1,22 @@
+//! Colors!!!
+
 use nannou::color::Srgb;
 use serde::de::{SeqAccess, Visitor};
 use serde::ser::Serializer;
 use serde::{Deserialize, Serialize};
 use std::fmt;
 
+/// A custom color struct, that can serialize and deserialize from an RGB array.
+///
+/// ## Examples
+///
+/// ```
+/// let grey = Color::new(0.4, 0.4, 0.4);
+/// let gold = Color::new_u8(213, 172, 53);
+/// let red = Color::hex(0xe34f5c);
+///
+/// draw.line(gold.to_srgb());
+/// ```
 #[derive(Debug, Clone, Copy)]
 pub struct Color {
     r: f32,
@@ -12,12 +25,15 @@ pub struct Color {
 }
 
 impl Color {
+    /// Converts our Color struct to the Nannou Srgb struct.
     pub fn to_srgb(self) -> Srgb {
         Srgb::new(self.r, self.g, self.b)
     }
+    /// Create new Color from numbers between 0 and 1.
     pub fn new(r: f32, g: f32, b: f32) -> Self {
         Self { r, g, b }
     }
+    /// Create a new Color from numbers between 0 and 255.
     pub fn new_u8(r: u8, g: u8, b: u8) -> Self {
         Color {
             r: r as f32 / 255.0,
@@ -25,6 +41,13 @@ impl Color {
             b: b as f32 / 255.0,
         }
     }
+    /// Create a new Color from a hex value.
+    ///
+    /// ## Examples
+    ///
+    /// ```
+    /// let c: Color = Color::hex(0xff00ff);
+    /// ```
     pub fn hex(hex: u32) -> Self {
         Self::new_u8(
             (hex >> 16) as u8,
@@ -34,6 +57,7 @@ impl Color {
     }
 }
 
+#[doc(hidden)]
 struct ColorVisitor;
 
 impl<'de> Visitor<'de> for ColorVisitor {

@@ -1,5 +1,8 @@
+//! Any other events not handled elsewhere.
+
 use crate::prelude::*;
 
+/// Doesn't do much if CONFIG.autosize_board is false (default).
 pub fn window_resized(_app: &App, model: &mut Model, rect: Vec2) {
     if CONFIG.autosize_board {
         time!("window_resize", {

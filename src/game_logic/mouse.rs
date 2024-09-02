@@ -1,7 +1,8 @@
-use super::{clamp_camera, pixel_to_board, Model, Selection};
-use crate::config::CONFIG;
-use nannou::prelude::*;
+//! Handles all mouse controls, scrolling, panning, editing, etc.
 
+use crate::prelude::*;
+
+/// Scrolls the camera when the mouse wheel is used.
 pub fn mouse_wheel(_app: &App, model: &mut Model, delta: MouseScrollDelta, _phase: TouchPhase) {
     match delta {
         MouseScrollDelta::LineDelta(_, y) => {
@@ -15,6 +16,7 @@ pub fn mouse_wheel(_app: &App, model: &mut Model, delta: MouseScrollDelta, _phas
     }
 }
 
+/// Handles panning the camera, and dragging the selection.
 pub fn mouse_moved(app: &App, model: &mut Model, pos: Vec2) {
     model.mouse_pos = (pos.x, pos.y);
 
@@ -42,6 +44,7 @@ pub fn mouse_moved(app: &App, model: &mut Model, pos: Vec2) {
     }
 }
 
+/// Handles placing/removing tiles, and starting selections.
 pub fn mouse_pressed(app: &App, model: &mut Model, button: MouseButton) {
     model.pressed = Some(button);
 
